@@ -1,0 +1,29 @@
+---
+title: "dirichlet"
+author: "Megan Nguyen"
+date: "3/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+lambda = 1
+N = 1000
+K = 1000
+
+theta = matrix(rnorm(N*K), nrow=N,ncol=K)
+v = matrix(rbeta(N*K, shape1=1, shape2=lambda), nrow=N, ncol=K)
+pi=matrix(NA, nrow=N, ncol=K)
+
+pi[,1] = v[,1]
+pi[,2] = v[,2] * (1-pi[,1])
+for(i in 3:K){
+  pi[,i] = v[,i] * (1-apply(pi[,1:(i-1)],1,sum))
+}
+
+plot(theta[1,],pi[1,],"h",xlab=expression(theta),ylab=expression(pi),main=paste0("lambda=",lambda))
+```
+

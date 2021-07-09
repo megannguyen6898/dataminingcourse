@@ -1,0 +1,264 @@
+---
+title: "Mixture Models"
+author: "Megan Nguyen"
+date: "4/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+(a) Let $$w$$ follow mutually independent multivariate distribution Uniform[0,1] such that $$\sum_{k = 1}^{2}{w_k} = 1$$
+Likelihood of y is
+$$\prod_{1}^{n}\sum_{k = 1}^{3}{w_k}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}$$
+#Above is the function of Gaussian distribution
+Prior of $$\mathbf{\beta}$$ = $$(\beta_1,\beta_2,\beta_3)$$ is
+First we calculate inverse of the 2x2 matrix $100I$
+$$(100I)^-1$$ = 
+$$\begin{bmatrix}
+100 & 0 \\
+0 & 100 
+\end{bmatrix}$$
+$$\sqrt{|100I|}$$ = 100
+Then prior of $$\beta_$$ is 
+$$\frac{\exp{{-1/2}(100\beta_{0k}^2+100\beta_{1k}^2)}}{100\sqrt{(2\pi)^3}}$$
+Because we transform 
+$${\beta_k^T(100I)^{-1}\beta_k}$$
+into $$\begin{bmatrix}
+\beta_{0k} \\
+\beta_{1k} 
+\end{bmatrix}\begin{bmatrix}
+100 & 0 \\
+0 & 100 
+\end{bmatrix}\begin{bmatrix}
+\beta_{0k} &\beta_{1k}
+\end{bmatrix}$$
+= $$100\beta_{0k}^2+100\beta_{1k}^2$$
+
+Prior of $\sigma$ is
+$$g(\sigma | 1,5) \propto (1 + (\frac{\sigma}{5})^2)^{-1} $$
+= $${\frac{25}{25 + \sigma^2}}$$ as we expand and group the fractions
+Prior of a is 
+$$a^{-3/2}\exp{\frac{-1}{25a}}$$
+Posterior distributions of $$(\beta_,w,\sigma^2,a)$$ given $$y$$ is 
+$$\prod_{1}^{n}\sum_{k = 1}^{3}{w_k}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}\frac{\exp{{-1/2}(100\beta_{0k}^2+100\beta_{1k}^2)}}{100\sqrt{(2\pi)^3}}{\frac{25}{25 + \sigma^2}}a^{-3/2}\exp{\frac{-1}{25a}}$$
+(b) Conditional distribution of $$\beta$$ is
+$$\prod_{1}^{n}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}\frac{\exp{{-1/2}(100\beta_{0k}^2+100\beta_{1k}^2)}}{100\sqrt{(2\pi)^3}}$$
+Conditional distribution of $$\w$$ is 
+$$\prod_{1}^{n}\sum_{k = 1}^{3}{w_k}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}$$
+Conditional distribution of $$\sigma^2$$
+$$\prod_{1}^{n}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}\frac{25}{25 + \sigma^2}$$
+Conditional distribution of $$a$$ is 
+$$\prod_{1}^{n}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k} )^2}{2\sigma^2}}}a^{-3/2}\exp{\frac{-1}{25a}}$$
+Gibbs sampling is not feasible because we still need to determine the distributions of each parameter and mixture distribution based on each observation i 
+(c) The prior of z is random variable 
+= $$\begin{bmatrix}
+z_1 \\
+... \\
+z_n
+\end{bmatrix}$$ 
+such that $$w_{z_i} \in [0,1]$$ and $$\sum_{z_i=1}^{3}{w_{z_i}} = 1$$
+Marginal distribution of z specified as
+$$p(z_i=1|w_1)=w_1$$ 
+$$p(z_i=2|w_2)=w_2$$
+$$p(z_i=3|w_1,w_2)=1-w_1-w_2$$
+(d) Updated likelihood of y is 
+$$\sum_{z_i = 1}^{3}{w_{z_i}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{1k})^2}{2\sigma^2}}}$$
+(i) Density of $z_i$ is 
+$$\prod_{i=1}^{n}{w_{z_i}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0z_i}-x_i\beta_{1z_i})^2}{2\sigma^2}}}$$
+The latent variable $$z_i$$ is discrete with support on {1,2,3} and its marginal function is 
+$$p(z_i = k |...) = \frac{{w_{k}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0k}-x_i\beta_{k})^2}{2\sigma^2}}}}{{w_{1}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{01}-x_i\beta_{11})^2}{2\sigma^2}}}+{w_2}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{02}-x_i\beta_{12})^2}{2\sigma^2}}}+(1-w_1-w_2){\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{03}-x_i\beta_{13})^2}{2\sigma^2}}}}$$
+(ii) Density of $\beta_{z_i}$ is
+Prior of $\beta_{z_i}$
+$$\frac{\exp{{-1/2}(100\beta_{0z_i}^2+100\beta_{1z_i}^2)}}{100\sqrt{(2\pi)^3}}$$
+Posterior density is
+$${\frac{1}{100({2\pi})^2\sqrt{\sigma^2}}}{\exp{{-1/2}(100\beta_{0z_i}^2+100\beta_{1z_i}^2)}}\prod_{i=1}^{n}{w_{z_i}^2}{\exp{\frac{-(y_i-\beta_{0z_i}-x_i\beta_{1z_i})^2}{2\sigma^2}}}$$
+(iii) Density of w
+$$\prod_{i=1}^{n}{w_{z_i}} = \prod_{i|z_i=1}^{n_1}{w_1}\prod_{i|z_i=2}^{n_2}{w_2}\prod_{i|z_i=3}^{n_3}{(1-w_1-w_2)}$$
+and the distribution of $$w$$ is $$Dir(n_1+1,n_2+1,n_3+1)$$
+(iv) Prior of a is 
+$$a^{-3/2}\exp{\frac{-1}{25a}}$$
+Posterior distribution is 
+$$a^{-3/2}\exp{\frac{-1}{25a}}\prod_{i=1}^{n}{w_{z_i}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0z_i}-x_i\beta_{1z_i})^2}{2\sigma^2}}}$$
+(v) Posterior of $\sigma^2$ is
+$${\frac{25}{25 + \sigma^2}}\prod_{i=1}^{n}{w_{z_i}}{\frac{1}{\sqrt{2\pi\sigma^2}}}{\exp{\frac{-(y_i-\beta_{0z_i}-x_i\beta_{1z_i})^2}{2\sigma^2}}}$$
+(e)
+```{r}
+#Gibbs sampler
+
+gibbs.beta1 = function(y,z){
+  #the number of observations that belong to component 1 
+  index = which(z==1) 
+  n1 = length(index) #number of obs
+  mean_y1 = mean(y[index])
+  rmvnorm(lower=-Inf,upper=+Inf,mean=mean_y1,sigma=diag(n1)*100)
+}
+
+gibbs.beta2 = function(y,z){
+  index = which(z==2)
+  n2 = length(index)
+  mean_y2 = mean(y[index])
+  rmvnorm(lower=-Inf,upper=+Inf,mean=mean_y2,sigma=diag(n2)*100) 
+}
+
+gibbs.beta3 = function(y,z){
+  index = which(z==3)
+  n3 = length(index)
+  mean_y3 = mean(y[index])
+  rmvnorm(lower=-Inf,upper=+Inf,mean=mean_y3,sigma=diag(n3)*100)
+}
+
+gibbs.w1 = function(y,z){
+  n1 = sum(z==1)
+  n2 = sum(z==2)
+  n3 = sum(z==3)
+  rdirichlet(1, c(1+n1, 1+n2,1+n3))
+}
+
+gibbs.w2 = function(y,z){
+  n1 = sum(z==1)
+  n2 = sum(z==2)
+  n3 = sum(z==3)
+  rdirichlet(1, c(1+n1, 1+n2,1+n3))
+}
+
+gibbs.a = function(y,z){
+  sum_y = sum(y)
+  n = length(y)
+  rinvgamma(1,n,1+sum_y)
+}
+
+gibbs.sigma = function(y,z) {
+  n = length(y)
+  nu = n-1
+  rht(n,nu,sigma=diag(n))
+}
+
+gibbs.z <- function(y,w1,w2,beta1, beta2, beta3,a,sigma){
+  logw1 <- log(w1)+dmvnorm(y, mean=beta1, sigma=sigma, log=T) #use log=T most stable
+  logp2 <- log(w2)+dmvnorm(y, mean=beta2, sigma=sigma, log=T)
+  logp3 <- log(1-w1-w2)+dmvnorm(y, mean=beta3, sigma=sigma, log=T)
+  logp <- cbind(logp1,logp2,logp3)
+  p <- exp(logp-apply(logp,1,max)) #apply for 
+  p <- p/rowSums(p)
+  apply(p,1,function(x) sample(c(1,2,3),1,prob=x))
+}
+
+sample.mixture = function(y, its,w1.init, w2.init,beta1.init, beta2.init, beta3.init,a.init, sigma.init, z.init){
+  
+  #create vectors for each parameter
+  w1 = vector("numeric", length=its)
+  w1[1] = w1.init
+  
+  w2 = vector("numeric", length=its)
+  w2[1] = w2.init
+  
+  beta1 = vector("numeric", length=its)
+  beta1[1] = beta1.init
+  
+    beta2 = vector("numeric", length=its)
+  beta2[1] = beta2.init
+  
+     beta3 = vector("numeric", length=its)
+  beta3[1] = beta3.init
+  
+     sigma = vector("numeric", length=its)
+  sigma[1] = sigma.init
+  
+  a = vector("numeric", length=its)
+  a[1] = a.init
+  
+  z = matrix(NA, nrow=length(y), ncol=its)
+  z[,1] = z.init
+  
+  for(i in 2:its){
+    #the argument of gibbs beta1
+    beta1[i] = gibbs.beta1(y,z[,(i-1)])
+   beta2[i] = gibbs.beta2(y,z[,(i-1)])
+      beta3[i] = gibbs.beta3(y,z[,(i-1)])
+    w1[1] = gibbs.w1(y, z[,(i-1)])
+    w2[1] = gibbs.w2(y, z[,(i-1)])
+    a[1] = gibbs.a(y, z[,(i-1)])
+    sigma[1] = gibbs.sigma(y, z[,(i-1)])
+    z[,1] = gibbs.z(y, w1[i], w2[i], beta1[i], beta2[i],beta3[i],sigma[i],a[i])
+
+  }
+  return(list(beta1=beta1, beta2=beta2,beta3=beta3, w1=w1,w2=w2,sigma=sigma,a=a, z=z)) 
+}
+```
+
+(f)
+(i)
+```{r}
+load(assignment3.Rdata)
+result = sample.mixture(y=dataset1, its=25000, w1.init = 0.3, w2.init = 0.4, beta1.init = 0.5, beta2.init = 1,beta3.init = 1,z.init = sample(c(1,2,3), size=length(dataset1), replace =T,prob=c(0.5,0.3,0.2)))
+```
+
+```{r}
+#plot the evolution of means
+par(mfrow = c(1,3))
+plot(1:25000, result$beta1, "l", xlab="Iteration", ylab=expression(beta[1]))
+lines(1:25000,cumsum(result$beta1)/1:25000,col="red")
+
+plot(1:25000, result$beta2, "l", xlab="Iteration", ylab=expression(beta[2]))
+lines(1:25000,cumsum(result$beta2)/1:25000,col="red")
+
+plot(1:25000, result$beta3, "l", xlab="Iteration", ylab=expression(beta[3]))
+lines(1:25000,cumsum(result$beta3)/1:25000,col="red")
+
+plot(1:25000, result$w1, "l", xlab="Iteration", ylab=expression(w[1]))
+lines(1:25000,cumsum(result$w1)/1:25000,col="red")
+
+plot(1:25000, result$w2, "l", xlab="Iteration", ylab=expression(w[2]))
+lines(1:25000,cumsum(result$w2)/1:25000,col="red")
+```
+
+(ii) Not mixing well because the plots are not converging to the correct posterior distribution because the likelihood is invariant to different permutations of the labels of the mixture components
+
+(iii)
+```{r}
+out = sample.mixture(y=dataset2, its=25000, w1.init = 0.3, w2.init = 0.4, beta1.init = 0.5, beta2.init = 1,beta3.init = 1,z.init = sample(c(1,2,3), size=length(dataset2), replace =T,prob=c(0.5,0.3,0.2)))
+```
+
+```{r}
+#plot the evolution of means
+par(mfrow = c(1,3))
+plot(1:25000, out$beta1, "l", xlab="Iteration", ylab=expression(beta[1]))
+lines(1:25000,cumsum(out$beta1)/1:25000,col="red")
+
+plot(1:25000, out$beta2, "l", xlab="Iteration", ylab=expression(beta[2]))
+lines(1:25000,cumsum(out$beta2)/1:25000,col="red")
+
+plot(1:25000, out$beta3, "l", xlab="Iteration", ylab=expression(beta[3]))
+lines(1:25000,cumsum(out$beta3)/1:25000,col="red")
+
+plot(1:25000, out$w1, "l", xlab="Iteration", ylab=expression(w[1]))
+lines(1:25000,cumsum(out$w1)/1:25000,col="red")
+
+plot(1:25000, out$w2, "l", xlab="Iteration", ylab=expression(w[2]))
+lines(1:25000,cumsum(out$w2)/1:25000,col="red")
+```
+
+(g) Examine h(x) at the dense values of x, which are estimated from the posterior means $$w^{(1)},μ^{(1)},\sigma^{(1)},...,w^{(n)},μ^{(n)},\sigma^{(n)}$$ in which 
+$$h(x)=w_1N(\beta_{01}+\beta_{11}x_i,\sigma^2)+w_2N(\beta_{02}+\beta_{12}x_i,\sigma^2)+(1-w_1-w_2)N(\beta_{03}+\beta_{13}x_i,\sigma^2)$$
+```{r}
+hx1 = matrix(NA, nrow = 201, ncol = 25000)
+
+for (i in 1:25000){
+  hx1[,i] = (result$w1[i])*dmvnorm(seq(0,20,by=0.1), mean=result$beta1[i], sigma=sigma)+(result$w2[i])*dmvnorm(seq(0,20,by=0.1), mean=result$beta2[i], sigma=sigma)+((1-result$w1[1]-result$w2[i])*dmvnorm(seq(0,20,by=0.1), mean=result$beta3[i], sigma=sigma))
+} 
+plot(seq(0,20,by=0.1),apply(hx1,1,mean),"l")
+```
+
+```{r}
+hx2 = matrix(NA, nrow = 201, ncol = 25000)
+
+for (i in 1:25000){
+  hx2[,i] = (out$w1[i])*dmvnorm(seq(0,20,by=0.1), mean=out$beta1[i], sigma=sigma)+(out$w2[i])*dmvnorm(seq(0,20,by=0.1), mean=out$beta2[i], sigma=sigma)+((1-out$w1[1]-out$w2[i])*dmvnorm(seq(0,20,by=0.1), mean=out$beta3[i], sigma=sigma))
+} 
+plot(seq(0,20,by=0.1),apply(hx2,1,mean),"l")
+```
+

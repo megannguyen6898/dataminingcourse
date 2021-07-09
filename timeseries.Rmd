@@ -1,0 +1,54 @@
+---
+title: "time_series"
+author: "Megan Nguyen"
+date: "3/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(fpp2)
+library(ggplot2)
+library(forecast)
+```
+
+```{r}
+cangas <- canadian_gas
+```
+
+#Plot the data using autoplot(), ggsubseriesplot() and ggseasonplot() to look at the effect of the changing seasonality over time. What do you think is causing it to change so much?
+
+```{r}
+ggplot2::autoplot(cangas)
+```
+
+```{r}
+ggsubseriesplot(cangas, main = NULL) + xlab("Month") + ylab("Gas Production (billions of cubic metres)")
+```
+
+```{r}
+ggseasonplot(cangas)
+```
+
+```{r}
+#- Do an STL decomposition of the data. You will need to choose s.window to allow for the changing shape of the seasonal component.
+stl.cangas <- stl(cangas, s.window = 13, robust = TRUE)
+autoplot(stl.cangas) +
+  ggtitle("Monthly Canadian Gas Production",
+          subtitle = "STL decomposition")
+```
+
+```{r}
+autoplot(cangas, series = "Data") +
+  autolayer(seasadj(stl.cangas), series = "Seasonally Adjusted") +
+  autolayer(trendcycle(stl.cangas), series = "Trend-cycle") +
+  ggtitle("Monthly Canadian gas production(STL decomposition)") +
+  ylab(expression(paste("Gas production (x", 10^{9}, m^{3}, ")"))) +
+  scale_color_manual(values = c("gray", "blue", "red"),
+                     breaks = c("Data", "Seasonally Adjusted", "Trend-cycle"))
+```
+
+#if we find a seasonal pattern in remainder component then the models are ineffective in finding the fluctuatuing seasonality in the data
