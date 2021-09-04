@@ -94,5 +94,5 @@ step_size = 0.1
 temp = 10
 # perform the simulated annealing search
 best, score = simulated_annealing(objective, bounds, n_iterations, step_size, temp)
-print('Done!')
+print('Done!') #Done!
 print('f(%s) = %f' % (best, score))
