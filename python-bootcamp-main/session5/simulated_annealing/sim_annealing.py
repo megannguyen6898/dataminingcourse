@@ -50,10 +50,10 @@ print(x, objective([x]), ' is the y **')
 
 
 
-# simulated annealing algorithm
+# simulated annealing algorithm: global search -> first we start with not so good sets of sol(global search), but end, we only accept good sols 
 def simulated_annealing(objective, bounds, n_iterations, step_size, temp):
-	# generate an initial point
-	best = bounds[:, 0] + rand(len(bounds)) * (bounds[:, 1] - bounds[:, 0])
+	# generate an initial point (needs to be within bounds eg: -5 and 5)
+	best = bounds[:, 0] + rand(len(bounds)) * (bounds[:, 1] - bounds[:, 0]) #we add random noise to the initial value
 	# evaluate the initial point
 	best_eval = objective(best)
 	# current working solution
@@ -61,7 +61,7 @@ def simulated_annealing(objective, bounds, n_iterations, step_size, temp):
 	# run the algorithm
 	for i in range(n_iterations):
 		# take a step
-		candidate = curr + randn(len(bounds)) * step_size
+		candidate = curr + randn(len(bounds)) * step_size #add random noise to current values
 		# evaluate candidate point
 		candidate_eval = objective(candidate)
 		# check for new best solution
@@ -75,7 +75,7 @@ def simulated_annealing(objective, bounds, n_iterations, step_size, temp):
 		# calculate temperature for current epoch
 		t = temp / float(i + 1)
 		# calculate metropolis acceptance criterion
-		metropolis = exp(-diff / t)
+		metropolis = exp(-diff / t) #if sol is good accept as best sol, if not good, accept based on prob
 		# check if we should keep the new point
 		if diff < 0 or rand() < metropolis:
 			# store the new current point
