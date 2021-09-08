@@ -33,7 +33,7 @@ def travellingSalesmanProblem(graph, s):
         current_pathweight += graph[k][s]
  
         # update minimum
-        min_path = min(min_path, current_pathweight)
+        min_path = min(min_path, current_pathweight) #distance between each vertex based on its path
          
     return min_path
  
@@ -42,7 +42,7 @@ def travellingSalesmanProblem(graph, s):
 if __name__ == "__main__":
  
     # matrix representation of graph
-    graph = [[0, 10, 15, 20], [10, 0, 35, 25],
+    graph = [[0, 10, 15, 20], [10, 0, 35, 25], #distance from city 0 to 1,city 1 to 2, ..
             [15, 35, 0, 30], [20, 25, 30, 0]]
     s = 0
     print(travellingSalesmanProblem(graph, s))
