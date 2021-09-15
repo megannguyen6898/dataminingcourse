@@ -74,9 +74,12 @@ class Network:
     def BackwardPass(self, Input, desired):
 
         out_delta = (desired - self.out) * (self.out * (1 - self.out))
+        #(self.out * (1 - self.out)) is the derivative of sigmoid fn aka slope of neuron's output value
+        #out_delta is the error for each output neuron
         hid_delta = np.zeros(self.Top[2])
+        #The error signal for a neuron in the hidden layer is calculated as the weighted error of each neuron in the output layer
         hid_delta = out_delta.dot(self.W2.T) * (self.hidout * (1 - self.hidout))
-
+        #delta reflects the change the error implies on the neuron (e.g. the weight delta)
     # update weights and bias
         layer = 1  # hidden to output
         for x in xrange(0, self.Top[layer]):
