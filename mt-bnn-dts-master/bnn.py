@@ -24,8 +24,8 @@ class Network:
                 self.z[y] = self.W[y][x] * inputs[x] - self.B[y]
                 self.output[y] = self.activation_function(self.z[y])
                 new_inputs.append(self.output[y])
-            inputs = new_inputs
-        return inputs
+                new_inputs[y] = inputs[y]
+        return inputs #return the output of last layer
         
     def derived_activation(self, activation, Z):
         if self.activation == "Sigmoid":
@@ -119,3 +119,18 @@ class Network:
         w_updated = self.encode()
 
         return  w_updated
+    def evaluate_proposal(self, W, data):
+        self.decode(W)
+        size = data.shape[0]
+
+        Inputs = np.zeros((1, self.Network_Layers[0]))  # temp hold input
+        Desired = np.zeros((1, self.Network_Layers[-1]))
+        fx = np.zeros(size)
+
+        for i in range(0, size):
+            Inputs = data[i, 0:self.Network_Layers[0]]
+            Desired = data[i, self.Network_Layers[0]:]
+            self.outputs = self.forward_propagation(Inputs)
+            fx[i] = self.outputs
+
+        return  fx
