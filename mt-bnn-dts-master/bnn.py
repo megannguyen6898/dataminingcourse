@@ -134,3 +134,33 @@ class Network:
             fx[i] = self.outputs
 
         return  fx
+'''Let data be the form
+params vars of interest
+value   value
+.       .
+.       .
+https://blogs.sas.com/content/iml/2020/07/15/multivariate-normal-log-likelihood.html
+'''
+class MCMC: #for MVN distribution
+    def __init__(self, epochs, Network_Layers):
+        self.epochs = epochs
+        self.Network_Layers = Network_Layers
+
+    def log_likelihood(self, data, cov, mean):
+        y = data[:, self.Network_Layers[0]] #params layers
+        num_obs = y.shape[0] #calc the number of observations
+        dimension = y.shape[1] #calc columns (number of params)
+        for i in range(num_obs):
+            residuals = y[i] - mean
+            log_likelihood = -0.5 * (np.log(np.linalg.det(cov)) + residuals.T.dot(np.linalg.inv(cov)).dot(residuals) + dimension * np.log(2 * np.pi))
+        return sum(log_likelihood)
+
+    def prior_likelihood(self, sigma_squared, nu_1, nu_2, w, tausq): #prior distribution over parameters
+        #assume we alr know mean of hidden neurons and input neurons nu_1 and nu_2 
+        for i in range(0, len(self.Network_Layers)):
+            h_i = len(self.Network_Layers[i]) #number of neurons of previous layer
+            h_i1 = len(self.Network_Layers[i+1])
+            part1 = -1 * ((sum(h_i * h_i1) + 2) / 2) * np.log(sigma_squared)
+            part2 = 1 / (2 * sigma_squared) * (sum(np.square(w)))
+            log_loss = part1 - part2 - (1 + nu_1) * np.log(tausq) - (nu_2 / tausq)
+        return log_loss
